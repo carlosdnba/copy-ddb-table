@@ -1,0 +1,51 @@
+{
+  "name": "copy-ddb-table",
+  "version": "1.0.0",
+  "author": "Carlos Daniel",
+  "license": "MIT",
+  "scripts": {
+    "start": "sst start",
+    "build": "sst build",
+    "deploy": "sst deploy",
+    "remove": "sst remove"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.33.0",
+    "@serverless-stack/cli": "0.55.1",
+    "@serverless-stack/resources": "0.55.1",
+    "debug": "^4.3.2",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-conventional": "^12.1.4",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.2",
+    "standard": "^16.0.4"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "sh husky/commit-msg",
+      "pre-commit": "sh husky/pre-commit",
+      "post-merge": "sh husky/post-merge"
+    }
+  },
+  "lint-staged": {
+    "*.js": "standard --fix"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "subject-case": [
+        2,
+        "never",
+        [
+          "start-case",
+          "pascal-case"
+        ]
+      ]
+    }
+  }
+}
