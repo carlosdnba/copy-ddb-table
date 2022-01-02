@@ -11,7 +11,8 @@ export class LambdaStack extends sst.Stack {
     })
 
     this.addOutputs({
-      LambdaName: Function.functionName
+      LambdaName: Function.functionName,
+      ConsoleUrl: `https://console.aws.amazon.com/lambda/home?region=${props.region}#/functions/${Function.functionName}?tab=testing`
     })
   }
 }

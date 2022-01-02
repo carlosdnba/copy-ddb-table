@@ -8,6 +8,7 @@ export default app => {
 
   new LambdaStack(app, 'stack', {
     stage: app.stage,
+    region: app.region,
     stackName: `${app.stage}-${app.name}`
   })
 }
