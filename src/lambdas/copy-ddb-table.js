@@ -57,7 +57,7 @@ export const main = async event => {
   const chunkedOriginData = chunk(originData, 20)
 
   // Building array of BatchWriteItemCommand objects
-  const BachesArr = chunkedOriginData.map(chu => ({
+  const BatchesArr = chunkedOriginData.map(chu => ({
     RequestItems: {
       [destination.tableName]: chu.map(item => ({
         PutRequest: {
@@ -67,6 +67,7 @@ export const main = async event => {
     }
   }))
 
-  const promises = BachesArr.map(Batch => DestinationDdbClient.send(new BatchWriteItemCommand(Batch)))
+  // Using Promise.all to send all batches in parallel
+  const promises = BatchesArr.map(Batch => DestinationDdbClient.send(new BatchWriteItemCommand(Batch)))
   await Promise.all(promises)
 }
