@@ -1,5 +1,6 @@
 import chunk from 'lodash/chunk'
 import { DynamoDBClient, ScanCommand, BatchWriteItemCommand } from '@aws-sdk/client-dynamodb'
+import { debug } from '../core/debug'
 
 const validateParams = (origin, destination) => {
   const solutionExample = JSON.stringify({
@@ -15,10 +16,12 @@ const validateParams = (origin, destination) => {
 
   const requiredParams = ['tableName', 'region']
   const missingParams = []
+
   requiredParams.forEach(param => {
     if (!origin[param]) missingParams.push(`origin.${param}`)
     if (!destination[param]) missingParams.push(`destination.${param}`)
   })
+  debug('copy-ddb-table:validate-params')('missingParams.length %j', missingParams.length)
 
   if (missingParams.length) {
     throw new Error(`Missing required params: ${missingParams.join(', ')}.\nYour request should look like this: ${solutionExample}`)
@@ -27,7 +30,8 @@ const validateParams = (origin, destination) => {
 
 const scanData = async (ddbClient, tableName) => {
   let data = {}
-  const response = []
+  const items = []
+
   do {
     data = await ddbClient.send(
       new ScanCommand({
@@ -38,13 +42,17 @@ const scanData = async (ddbClient, tableName) => {
         })
       })
     )
-    response.push(...data.Items)
+    items.push(...data.Items)
   } while (data.LastEvaluatedKey)
-  return response
+
+  debug('copy-ddb-table:scan-data')('items.length %j', items.length)
+  return items
 }
 
 export const main = async event => {
-  // table names for both origin and destination tables
+  debug('copy-ddb-table:main')('event %j', event)
+
+  // Table names for both origin and destination tables
   const { origin, destination } = event
   validateParams(origin, destination)
 
@@ -66,8 +74,12 @@ export const main = async event => {
       }))
     }
   }))
+  debug('copy-ddb-table:main')('BatchesArr.length %j', BatchesArr.length)
 
   // Using Promise.all to send all batches in parallel
   const promises = BatchesArr.map(Batch => DestinationDdbClient.send(new BatchWriteItemCommand(Batch)))
-  await Promise.all(promises)
+  const response = await Promise.all(promises)
+  debug('copy-ddb-table:main')('response %j', response)
+
+  return response
 }

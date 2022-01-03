@@ -7,7 +7,12 @@ export class LambdaStack extends sst.Stack {
     const Function = new sst.Function(this, 'lambda', {
       functionName: `${props.stage}-${props.projectName}-main`,
       handler: 'src/lambdas/copy-ddb-table.main',
-      permissions: ['dynamodb:*']
+      permissions: ['dynamodb:*'],
+      environment: {
+        DEBUG: `${props.projectName}:*`,
+        PROJECT_NAME: props.projectName,
+        STAGE: props.stage
+      }
     })
 
     this.addOutputs({
